@@ -5,6 +5,7 @@ import { api } from "@/lib/api";
 import { imagePayload } from "@/lib/imageUpload";
 import type { Match, Player, Standing } from "@/lib/types";
 import { MatchForm } from "./MatchForm";
+import { ProfileEditor } from "./ProfileEditor";
 type Tab = "home" | "matches" | "standings" | "players";
 const names = (p: Player[]) => p.map((x) => x.name.split(" ")[0]).join(" + ");
 const score = (m: Match) =>
@@ -24,6 +25,8 @@ export function Tracker({
   const [form, setForm] = useState<Match | null | false>(false);
   const [format, setFormat] = useState("");
   const [profile, setProfile] = useState<any>(null);
+  const [memberDetails, setMemberDetails] = useState(member);
+  const [editingProfile, setEditingProfile] = useState(false);
   const load = useCallback(async () => {
     setLoading(true);
     try {
@@ -53,7 +56,7 @@ export function Tracker({
   const todays = matches.filter(
     (m) => new Date(m.playedAt).toDateString() === today,
   );
-  const currentPlayer = players.find((player) => player.id === member.id) || member;
+  const currentPlayer = { ...memberDetails, ...players.find((player) => player.id === member.id) };
 
   async function uploadProfilePhoto(file: File) {
     await api("/players/me/photo", {
@@ -136,8 +139,8 @@ export function Tracker({
           </div>
           <button
             className="profile-chip"
-            title="Sign out"
-            onClick={onLogout}
+            title="Edit profile"
+            onClick={() => setEditingProfile(true)}
           >
             <span className="profile-copy">
               <strong>{currentPlayer.name}</strong>
@@ -401,6 +404,16 @@ export function Tracker({
           onSaved={() => {
             setForm(false);
             load();
+          }}
+        />
+      )}
+      {editingProfile && (
+        <ProfileEditor
+          player={currentPlayer}
+          onClose={() => setEditingProfile(false)}
+          onUpdated={async (updated) => {
+            setMemberDetails((current) => ({ ...current, ...updated }));
+            await load();
           }}
         />
       )}

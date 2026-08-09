@@ -3,17 +3,19 @@ const Member = require("../models/Member");
 const { requireAuth } = require("../middleware/auth");
 const { deleteImage, putImage, streamImage } = require("../services/imageStorageService");
 const { playerProfile } = require("../services/statisticsService");
+const { requestPhoneChange, updateProfile, verifyPhoneChange } = require("../services/profileService");
 const { asyncRoute, fail, ok } = require("../utils/api");
 const { safeFileName, storageKey, validateImagePayload } = require("../utils/imageUpload");
 
 const router = express.Router();
 router.use(requireAuth);
 
-function playerView(member) {
+function playerView(member, includePhone = false) {
   const id = String(member._id);
   return {
     id,
     name: member.name,
+    ...(includePhone ? { phone: member.phone } : {}),
     color: member.color,
     role: member.role,
     avatarUrl: member.avatarStorageKey ? `/api/players/${id}/photo` : member.avatarUrl,
@@ -23,6 +25,29 @@ function playerView(member) {
 router.get("/", asyncRoute(async (request, response) => {
   const members = await Member.find({ status: "active" }).sort({ name: 1 }).lean();
   return ok(response, { players: members.map(playerView) });
+}));
+
+router.patch("/me", asyncRoute(async (request, response) => {
+  const result = await updateProfile(request.member, request.body);
+  if (result.error) return fail(response, ...result.error);
+  return ok(response, { member: playerView(result.member, true), message: "Profile updated." });
+}));
+
+router.post("/me/phone/request-otp", asyncRoute(async (request, response) => {
+  try {
+    const result = await requestPhoneChange(request.member, request.body.phone);
+    if (result.error) return fail(response, ...result.error);
+    return ok(response, result);
+  } catch (error) {
+    console.error("Phone-change OTP delivery failed:", error.message);
+    return fail(response, 503, "OTP_DELIVERY_FAILED", "OTP delivery is temporarily unavailable.");
+  }
+}));
+
+router.post("/me/phone/verify-otp", asyncRoute(async (request, response) => {
+  const result = await verifyPhoneChange(request.member, request.body.phone, request.body.otp);
+  if (result.error) return fail(response, ...result.error);
+  return ok(response, { member: playerView(result.member, true), message: result.message });
 }));
 
 router.post("/me/photo", asyncRoute(async (request, response) => {
@@ -45,7 +70,7 @@ router.post("/me/photo", asyncRoute(async (request, response) => {
   await request.member.save();
   if (previousKey) await deleteImage(previousKey).catch((error) => console.error("Old avatar cleanup failed:", error.message));
 
-  return ok(response, { member: playerView(request.member), message: "Profile photo updated." });
+  return ok(response, { member: playerView(request.member, true), message: "Profile photo updated." });
 }));
 
 router.delete("/me/photo", asyncRoute(async (request, response) => {
@@ -55,7 +80,7 @@ router.delete("/me/photo", asyncRoute(async (request, response) => {
   request.member.avatarUrl = "";
   await request.member.save();
   if (previousKey) await deleteImage(previousKey).catch((error) => console.error("Avatar cleanup failed:", error.message));
-  return ok(response, { member: playerView(request.member), message: "Profile photo removed." });
+  return ok(response, { member: playerView(request.member, true), message: "Profile photo removed." });
 }));
 
 router.get("/:id/photo", asyncRoute(async (request, response) => {

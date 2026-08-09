@@ -1,6 +1,7 @@
 export type Player = {
   id: string;
   name: string;
+  phone?: string;
   color: string;
   avatarUrl?: string;
   role?: "member" | "admin";
