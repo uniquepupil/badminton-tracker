@@ -39,7 +39,7 @@ Use unique colors for easy recognition. Set `status: "inactive"` to block future
 ## Production
 
 - Serve both applications over HTTPS.
-- Set `SESSION_SECURE=true` and set `CLIENT_ORIGIN` to the exact frontend origin.
+- Set `SESSION_SECURE=true`, `SESSION_SAME_SITE=none`, and set `CLIENT_ORIGIN` to the exact frontend origin when the frontend and API use different domains. Production defaults already choose a secure cross-site cookie, but explicit values make the deployment intent clear.
 - Keep backend environment files outside source control and rotate any credential that is accidentally committed.
 - Configure the frontend API URL at build time with `NEXT_PUBLIC_API_BASE_URL` (for example, `https://your-backend.onrender.com`; the app safely adds `/api`). Redeploy the frontend after changing this build-time variable.
 - Deploy backend and frontend under the same parent site when possible. If separate sites are required, adjust cookie SameSite policy deliberately.
