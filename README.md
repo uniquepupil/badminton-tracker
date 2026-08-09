@@ -53,6 +53,10 @@ Use unique colors for easy recognition. Set `status: "inactive"` to block future
 - `npm run lint` — frontend lint
 - `npm run build` — frontend production build
 
+## Render wake-up monitor
+
+The GitHub Actions workflow `.github/workflows/keep-render-awake.yml` calls the public API health endpoint every 10 minutes and can also be triggered manually. This is external by design: an in-process Node cron cannot run while a free Render instance is suspended. Keeping a free service continuously active consumes its Render workspace's monthly free instance hours.
+
 ## Data behavior
 
 Deleted matches are soft-deleted for auditability. Standings and profiles are calculated from non-deleted matches, so score edits or deletions are reflected immediately. A match creator may edit their match; only an admin may delete one.
