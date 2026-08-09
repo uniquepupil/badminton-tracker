@@ -26,6 +26,10 @@ const env = {
   whatsappTemplateName: process.env.WHATSAPP_TEMPLATE_NAME || process.env.WHATSAPP_AUTH_TEMPLATE || "",
   whatsappLanguage: process.env.WHATSAPP_TEMPLATE_LANGUAGE || "en",
   defaultCountryCode: process.env.WHATSAPP_DEFAULT_COUNTRY_CODE || "91",
+  s3Region: process.env.S3_REGION || process.env.AWS_REGION || "",
+  s3Bucket: process.env.S3_BUCKET || process.env.S3_ID_BUCKET || "",
+  s3BadmintonPrefix: process.env.S3_BADMINTON_PREFIX || "badminton-tracker",
+  imageUploadMaxBytes: number("IMAGE_UPLOAD_MAX_BYTES", 5 * 1024 * 1024),
 };
 
 module.exports = { env };

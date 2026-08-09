@@ -11,7 +11,7 @@ function matchQuery(filters = {}) {
 
 async function standings(filters = {}) {
   const [members, matches] = await Promise.all([Member.find({ status: "active" }).lean(), Match.find(matchQuery(filters)).lean()]);
-  const rows = new Map(members.map(m => [String(m._id), { member: { id: String(m._id), name: m.name, color: m.color, avatarUrl: m.avatarUrl }, played: 0, wins: 0, losses: 0, gamesWon: 0, gamesLost: 0, pointsFor: 0, pointsAgainst: 0 }]));
+  const rows = new Map(members.map(m => [String(m._id), { member: { id: String(m._id), name: m.name, color: m.color, avatarUrl: m.avatarStorageKey ? `/api/players/${m._id}/photo` : m.avatarUrl }, played: 0, wins: 0, losses: 0, gamesWon: 0, gamesLost: 0, pointsFor: 0, pointsAgainst: 0 }]));
   for (const match of matches) {
     const aIds = match.sideA.map(String); const bIds = match.sideB.map(String); const ga = match.games.filter(g => g.sideA > g.sideB).length; const gb = match.games.length - ga;
     const pa = match.games.reduce((sum, g) => sum + g.sideA, 0); const pb = match.games.reduce((sum, g) => sum + g.sideB, 0);
@@ -22,12 +22,12 @@ async function standings(filters = {}) {
 
 async function playerProfile(id) {
   const member = await Member.findById(id).lean(); if (!member || member.status !== "active") return null;
-  const matches = await Match.find({ deletedAt: null, $or: [{ sideA: id }, { sideB: id }] }).populate("sideA sideB", "name color avatarUrl").sort({ playedAt: -1 }).lean();
+  const matches = await Match.find({ deletedAt: null, $or: [{ sideA: id }, { sideB: id }] }).populate("sideA sideB", "name color avatarUrl avatarStorageKey").sort({ playedAt: -1 }).lean();
   const base = (await standings({ player: id })).find(r => r.member.id === String(id)); const teammates = {}; const opponents = {};
   for (const m of matches) { const inA = m.sideA.some(x => String(x._id) === String(id)); const won = m.winner === (inA ? "A" : "B");
     for (const p of (inA ? m.sideA : m.sideB)) if (String(p._id) !== String(id)) { const key=String(p._id); teammates[key] ||= { member:{id:key,name:p.name,color:p.color},played:0,wins:0 }; teammates[key].played++; if(won) teammates[key].wins++; }
     for (const p of (inA ? m.sideB : m.sideA)) { const key=String(p._id); opponents[key] ||= { member:{id:key,name:p.name,color:p.color},played:0,wins:0 }; opponents[key].played++; if(won) opponents[key].wins++; }
   }
-  return { member: { id:String(member._id), name:member.name, color:member.color, avatarUrl:member.avatarUrl }, stats:base, recentForm:matches.slice(0,10).map(m => m.winner === (m.sideA.some(x=>String(x._id)===String(id)) ? "A":"B") ? "W":"L"), teammates:Object.values(teammates), headToHead:Object.values(opponents) };
+  return { member: { id:String(member._id), name:member.name, color:member.color, avatarUrl:member.avatarStorageKey ? `/api/players/${member._id}/photo` : member.avatarUrl }, stats:base, recentForm:matches.slice(0,10).map(m => m.winner === (m.sideA.some(x=>String(x._id)===String(id)) ? "A":"B") ? "W":"L"), teammates:Object.values(teammates), headToHead:Object.values(opponents) };
 }
 module.exports = { matchQuery, standings, playerProfile };

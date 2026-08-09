@@ -14,7 +14,8 @@ Private, mobile-first badminton score tracker for a small allowlisted group. The
 2. Copy `WHATSAPP_OTP_ENABLED`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_API_VERSION`, `WHATSAPP_TEMPLATE_NAME`, `WHATSAPP_TEMPLATE_LANGUAGE`, and `WHATSAPP_DEFAULT_COUNTRY_CODE` from the Astra Café backend environment. Do not copy Astra's database name or session configuration.
 3. The tracker uses the same approved Meta Authentication template and sends its OTP in both the template body and copy-code button parameters. `WHATSAPP_AUTH_TEMPLATE` remains supported only as a temporary backwards-compatible alias for older deployments.
 4. Use a new `MONGODB_DB_NAME` such as `badminton_tracker`; never use Astra's database name.
-5. Install and run:
+5. Copy Astra's `S3_REGION`, `S3_ID_BUCKET`, `AWS_ACCESS_KEY_ID`, and `AWS_SECRET_ACCESS_KEY` into the backend environment. Set `S3_BADMINTON_PREFIX=badminton-tracker` so profile and match images never mix with Astra's private-ID prefix.
+6. Install and run:
 
 ```bash
 npm install
@@ -55,3 +56,5 @@ Use unique colors for easy recognition. Set `status: "inactive"` to block future
 ## Data behavior
 
 Deleted matches are soft-deleted for auditability. Standings and profiles are calculated from non-deleted matches, so score edits or deletions are reflected immediately. A match creator may edit their match; only an admin may delete one.
+
+Profile photos and match photos are private S3 objects. MongoDB stores their S3 keys and metadata, while authenticated API routes stream the image content to squad members. Each match supports up to five JPG, PNG, or WEBP files, with a default maximum of 5 MB per image.

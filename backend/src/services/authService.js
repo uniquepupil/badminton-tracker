@@ -2,7 +2,14 @@ const crypto = require("node:crypto");
 const Member = require("../models/Member"); const OtpChallenge = require("../models/OtpChallenge"); const Session = require("../models/Session");
 const { env } = require("../config/env"); const { normalizePhone } = require("../utils/phone"); const { sendOtp } = require("./whatsappService");
 const digest = value => crypto.createHash("sha256").update(String(value)).digest("hex");
-const publicMember = member => ({ id: String(member._id), name: member.name, phone: member.phone, avatarUrl: member.avatarUrl, color: member.color, role: member.role });
+const publicMember = member => ({
+  id: String(member._id),
+  name: member.name,
+  phone: member.phone,
+  avatarUrl: member.avatarStorageKey ? `/api/players/${member._id}/photo` : member.avatarUrl,
+  color: member.color,
+  role: member.role,
+});
 
 async function requestOtp(rawPhone) {
   const phone = normalizePhone(rawPhone); const generic = { message: "If this number is approved, an OTP will arrive on WhatsApp." };

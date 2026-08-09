@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { BarChart3, History, Home, LogOut, Plus, Users } from "lucide-react";
 import { api } from "@/lib/api";
+import { imagePayload } from "@/lib/imageUpload";
 import type { Match, Player, Standing } from "@/lib/types";
 import { MatchForm } from "./MatchForm";
 type Tab = "home" | "matches" | "standings" | "players";
@@ -52,6 +53,16 @@ export function Tracker({
   const todays = matches.filter(
     (m) => new Date(m.playedAt).toDateString() === today,
   );
+  const currentPlayer = players.find((player) => player.id === member.id) || member;
+
+  async function uploadProfilePhoto(file: File) {
+    await api("/players/me/photo", {
+      method: "POST",
+      body: JSON.stringify(await imagePayload(file)),
+    });
+    await load();
+    await showPlayer(member.id);
+  }
   function MatchList({ items = matches }: { items?: Match[] }) {
     return (
       <>
@@ -69,7 +80,10 @@ export function Tracker({
                 <strong>{names(m.sideA)}</strong>
                 <span>{m.winner === "A" ? "Winner" : "Side A"}</span>
               </div>
-              <div className="score">{score(m)}</div>
+              <div className="score-stack">
+                <div className="score">{score(m)}</div>
+                {m.photos?.[0] && <img className="match-thumb" src={m.photos[0].url} alt={m.photos[0].fileName} />}
+              </div>
               <div className="team">
                 <strong>{names(m.sideB)}</strong>
                 <span>{m.winner === "B" ? "Winner" : "Side B"}</span>
@@ -126,11 +140,11 @@ export function Tracker({
             onClick={onLogout}
           >
             <span className="profile-copy">
-              <strong>{member.name}</strong>
-              <small>{member.role === "admin" ? "Admin" : "Player"}</small>
+              <strong>{currentPlayer.name}</strong>
+              <small>{currentPlayer.role === "admin" ? "Admin" : "Player"}</small>
             </span>
-            <span className="avatar" style={{ background: member.color }}>
-              {member.name[0]}
+            <span className="avatar" style={{ background: currentPlayer.color }}>
+              {currentPlayer.avatarUrl ? <img src={currentPlayer.avatarUrl} alt="" /> : currentPlayer.name[0]}
             </span>
           </button>
         </header>
@@ -281,6 +295,15 @@ export function Tracker({
                     </button>
                     <div className="grid">
                       <div className="card">
+                        {profile.member.id === member.id && (
+                          <div className="profile-photo-editor">
+                            <span className="profile-photo" style={{ background: profile.member.color }}>
+                              {profile.member.avatarUrl ? <img src={profile.member.avatarUrl} alt={profile.member.name} /> : profile.member.name[0]}
+                            </span>
+                            <div><strong>Profile photo</strong><small>Visible only to your squad</small></div>
+                            <label className="btn secondary"><input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => event.target.files?.[0] && uploadProfilePhoto(event.target.files[0]).catch((error) => window.alert(error.message))} />Change photo</label>
+                          </div>
+                        )}
                         <div className="stat-grid">
                           <div className="stat">
                             <strong>{profile.stats?.wins || 0}</strong>
@@ -325,11 +348,8 @@ export function Tracker({
                         key={p.id}
                         onClick={() => showPlayer(p.id)}
                       >
-                        <span
-                          className="avatar"
-                          style={{ background: p.color }}
-                        >
-                          {p.name[0]}
+                        <span className="avatar" style={{ background: p.color }}>
+                          {p.avatarUrl ? <img src={p.avatarUrl} alt="" /> : p.name[0]}
                         </span>
                         <span className="rank-name">{p.name}</span>
                         <span>›</span>
