@@ -1,0 +1,21 @@
+{
+  "name": "badminton-tracker",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "concurrently -n api,web -c yellow,cyan \"npm run dev -w backend\" \"npm run dev -w frontend\"",
+    "build": "npm run build -w frontend",
+    "test": "npm test -w backend",
+    "lint": "npm run lint -w frontend"
+  },
+  "devDependencies": {
+    "@tailwindcss/oxide-darwin-arm64": "^4.3.3",
+    "concurrently": "^9.2.1"
+  },
+  "engines": {
+    "node": ">=20.9"
+  }
+}

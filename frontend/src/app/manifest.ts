@@ -1,0 +1,1 @@
+import type {MetadataRoute} from "next";export default function manifest():MetadataRoute.Manifest{return{name:"Shuttle Squad",short_name:"Shuttle",description:"Private badminton score tracker",start_url:"/",display:"standalone",background_color:"#07110c",theme_color:"#b7f34a",icons:[{src:"/icon.svg",sizes:"any",type:"image/svg+xml"}]};}

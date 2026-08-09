@@ -1,0 +1,1 @@
+const app=require("./app");const {connectDatabase}=require("./config/database");const {env}=require("./config/env");connectDatabase().then(()=>app.listen(env.port,()=>console.log(`Badminton API running on ${env.port}`))).catch(error=>{console.error(error.message);process.exit(1);});

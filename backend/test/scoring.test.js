@@ -1,0 +1,6 @@
+const test=require("node:test");const assert=require("node:assert/strict");const {validateGame,evaluateMatch}=require("../src/utils/scoring");
+test("accepts standard games and deuce",()=>{assert.equal(validateGame({sideA:21,sideB:17},false),null);assert.equal(validateGame({sideA:24,sideB:22},false),null);assert.equal(validateGame({sideA:30,sideB:29},false),null);});
+test("rejects invalid standard scores",()=>{assert.ok(validateGame({sideA:21,sideB:20},false));assert.ok(validateGame({sideA:31,sideB:29},false));assert.ok(validateGame({sideA:20,sideB:18},false));});
+test("calculates singles winner",()=>{const result=evaluateMatch({format:"1v1",sideA:["a"],sideB:["b"],games:[{sideA:21,sideB:9},{sideA:21,sideB:19}]});assert.equal(result.winner,"A");});
+test("supports doubles and uneven matches",()=>{assert.equal(evaluateMatch({format:"2v2",sideA:["a","b"],sideB:["c","d"],isCustom:true,games:[{sideA:5,sideB:7}]}).winner,"B");assert.equal(evaluateMatch({format:"2v1",sideA:["a","b"],sideB:["c"],isCustom:true,games:[{sideA:8,sideB:6}]}).winner,"A");});
+test("rejects duplicate players and early standard endings",()=>{assert.ok(evaluateMatch({format:"1v1",sideA:["a"],sideB:["a"],games:[{sideA:21,sideB:1},{sideA:21,sideB:2}]}).error);assert.ok(evaluateMatch({format:"1v1",sideA:["a"],sideB:["b"],games:[{sideA:21,sideB:1}]}).error);});

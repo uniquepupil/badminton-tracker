@@ -1,0 +1,3 @@
+const express=require("express");const Member=require("../models/Member");const {requireAuth}=require("../middleware/auth");const {playerProfile}=require("../services/statisticsService");const {asyncRoute,ok,fail}=require("../utils/api");const router=express.Router();router.use(requireAuth);
+router.get("/",asyncRoute(async(req,res)=>{const members=await Member.find({status:"active"}).select("name color avatarUrl role").sort({name:1}).lean();return ok(res,{players:members.map(m=>({id:String(m._id),name:m.name,color:m.color,avatarUrl:m.avatarUrl,role:m.role}))});}));
+router.get("/:id",asyncRoute(async(req,res)=>{const profile=await playerProfile(req.params.id);return profile?ok(res,{profile}):fail(res,404,"PLAYER_NOT_FOUND","Player not found.");}));module.exports=router;

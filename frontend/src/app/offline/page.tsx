@@ -1,0 +1,1 @@
+export default function Offline(){return <main className="center-page"><div className="empty"><span className="big">🏸</span><h1>You&apos;re offline</h1><p>Reconnect to view or record scores. Your tracker always uses live match data.</p></div></main>}

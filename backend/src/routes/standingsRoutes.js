@@ -1,0 +1,1 @@
+const express=require("express");const {requireAuth}=require("../middleware/auth");const {standings}=require("../services/statisticsService");const {asyncRoute,ok}=require("../utils/api");const router=express.Router();router.use(requireAuth);router.get("/",asyncRoute(async(req,res)=>ok(res,{standings:await standings(req.query)})));module.exports=router;

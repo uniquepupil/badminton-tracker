@@ -1,0 +1,7 @@
+const express = require("express"); const rateLimit = require("express-rate-limit"); const Session = require("../models/Session"); const { env } = require("../config/env"); const { requestOtp, verifyOtp } = require("../services/authService"); const { requireAuth } = require("../middleware/auth"); const { asyncRoute, ok, fail } = require("../utils/api");
+const router = express.Router(); const genericLimiter = rateLimit({ windowMs: 15*60000, limit: 10, standardHeaders: true, legacyHeaders:false });
+router.post("/request-otp", genericLimiter, asyncRoute(async (req,res) => { try { return ok(res, await requestOtp(req.body.phone)); } catch { return fail(res,503,"OTP_DELIVERY_FAILED","OTP delivery is temporarily unavailable."); } }));
+router.post("/verify-otp", genericLimiter, asyncRoute(async (req,res) => { const result=await verifyOtp(req.body.phone,req.body.otp,req.get("user-agent")); if(result.error) return fail(res,...result.error); res.cookie(env.cookieName,result.token,{ httpOnly:true,secure:env.sessionSecure,sameSite:"lax",path:"/",expires:result.expiresAt }); return ok(res,{member:result.member}); }));
+router.get("/me",requireAuth,(req,res)=>ok(res,{member:req.publicMember}));
+router.post("/logout",requireAuth,asyncRoute(async(req,res)=>{ req.session.revokedAt=new Date(); await req.session.save(); res.clearCookie(env.cookieName,{path:"/"}); return ok(res,{message:"Signed out."}); }));
+module.exports=router;
