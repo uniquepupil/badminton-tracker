@@ -1,9 +1,6 @@
-function resolveApiBaseUrl(configuredUrl?: string) {
-  const rawUrl = String(configuredUrl || "http://localhost:4000/api").trim().replace(/\/+$/, "");
-  return rawUrl.endsWith("/api") ? rawUrl : `${rawUrl}/api`;
-}
-
-const API_BASE_URL = resolveApiBaseUrl(process.env.NEXT_PUBLIC_API_BASE_URL);
+// Browser requests stay on the frontend origin. Next.js proxies /api to Render,
+// keeping the HTTP-only session cookie first-party and reliable after reloads.
+const API_BASE_URL = "/api";
 
 export class ApiError extends Error {
   code: string;
@@ -35,5 +32,3 @@ export async function api<T>(path: string, init: RequestInit = {}) {
 
   return body.data as T;
 }
-
-export { resolveApiBaseUrl };
