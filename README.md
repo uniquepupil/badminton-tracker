@@ -42,7 +42,7 @@ Use unique colors for easy recognition. Set `status: "inactive"` to block future
 - Serve both applications over HTTPS.
 - Set `SESSION_SECURE=true`, `SESSION_SAME_SITE=none`, and set `CLIENT_ORIGIN` to the exact frontend origin when the frontend and API use different domains. Production defaults already choose a secure cross-site cookie, but explicit values make the deployment intent clear.
 - Keep backend environment files outside source control and rotate any credential that is accidentally committed.
-- Configure the frontend proxy target with `BACKEND_API_URL` (for example, `https://your-backend.onrender.com`). Browser calls use the frontend's same-origin `/api` path so HTTP-only sessions survive reloads even when Render is on another domain. The former `NEXT_PUBLIC_API_BASE_URL` variable remains accepted as a deployment fallback. Redeploy the frontend after changing either build-time variable.
+- Configure the frontend proxy target with `BACKEND_API_URL` (for example, `https://your-backend.onrender.com`). Browser calls use an explicit same-origin Next.js `/api` proxy that forwards HTTP-only session cookies in both directions and disables caching, so sessions survive reloads even when Render is on another domain. The former `NEXT_PUBLIC_API_BASE_URL` variable remains accepted as a deployment fallback. Redeploy the frontend after changing either build-time variable.
 - Deploy backend and frontend under the same parent site when possible. If separate sites are required, adjust cookie SameSite policy deliberately.
 - Check `/api/health` for process and MongoDB readiness.
 
