@@ -17,10 +17,12 @@ const env = {
   otpTtlMinutes: number("OTP_TTL_MINUTES", 5),
   otpResendSeconds: number("OTP_RESEND_SECONDS", 60),
   otpMaxAttempts: number("OTP_MAX_ATTEMPTS", 5),
-  whatsappApiVersion: process.env.WHATSAPP_API_VERSION || "v23.0",
+  // Missing means enabled for compatibility with tracker deployments created before this flag existed.
+  whatsappOtpEnabled: String(process.env.WHATSAPP_OTP_ENABLED || "true").toLowerCase() === "true",
+  whatsappApiVersion: process.env.WHATSAPP_API_VERSION || "v25.0",
   whatsappPhoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID || "",
   whatsappAccessToken: process.env.WHATSAPP_ACCESS_TOKEN || "",
-  whatsappAuthTemplate: process.env.WHATSAPP_AUTH_TEMPLATE || "",
+  whatsappTemplateName: process.env.WHATSAPP_TEMPLATE_NAME || process.env.WHATSAPP_AUTH_TEMPLATE || "",
   whatsappLanguage: process.env.WHATSAPP_TEMPLATE_LANGUAGE || "en",
   defaultCountryCode: process.env.WHATSAPP_DEFAULT_COUNTRY_CODE || "91",
 };

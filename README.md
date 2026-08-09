@@ -11,8 +11,8 @@ Private, mobile-first badminton score tracker for a small allowlisted group. The
 ## Setup
 
 1. Copy `backend/.env.example` to `backend/.env` and `frontend/.env.example` to `frontend/.env.local`.
-2. Copy the `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_ACCESS_TOKEN`, API version, language, and default country code values from the Astra backend environment. Do not copy Astra's database name or session configuration.
-3. Set `WHATSAPP_AUTH_TEMPLATE` to the separately approved authentication-template name. Its body and copy-code button must each accept the OTP parameter.
+2. Copy `WHATSAPP_OTP_ENABLED`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_API_VERSION`, `WHATSAPP_TEMPLATE_NAME`, `WHATSAPP_TEMPLATE_LANGUAGE`, and `WHATSAPP_DEFAULT_COUNTRY_CODE` from the Astra Café backend environment. Do not copy Astra's database name or session configuration.
+3. The tracker uses the same approved Meta Authentication template and sends its OTP in both the template body and copy-code button parameters. `WHATSAPP_AUTH_TEMPLATE` remains supported only as a temporary backwards-compatible alias for older deployments.
 4. Use a new `MONGODB_DB_NAME` such as `badminton_tracker`; never use Astra's database name.
 5. Install and run:
 
