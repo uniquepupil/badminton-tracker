@@ -57,6 +57,8 @@ Use unique colors for easy recognition. Set `status: "inactive"` to block future
 
 The GitHub Actions workflow `.github/workflows/keep-render-awake.yml` calls the public API health endpoint every 10 minutes and can also be triggered manually. This is external by design: an in-process Node cron cannot run while a free Render instance is suspended. Keeping a free service continuously active consumes its Render workspace's monthly free instance hours.
 
+As a secondary fallback, every frontend page load sends a non-blocking request to the same-origin `/api/health` proxy. The UI and authentication flow do not wait for that response.
+
 ## Data behavior
 
 Deleted matches are soft-deleted for auditability. Standings and profiles are calculated from non-deleted matches, so score edits or deletions are reflected immediately. A match creator may edit their match; only an admin may delete one.
