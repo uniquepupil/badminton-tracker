@@ -222,7 +222,7 @@ export function Tracker({
                       <MatchList items={matches.slice(0, 4)} />
                     </div>
                   </div>
-                  <div className="card">
+                  <div className="card standings-card">
                     <div className="card-head">
                       <h2>Top standings</h2>
                       <button
@@ -244,7 +244,7 @@ export function Tracker({
                   Every game, every comeback, all in one place.
                 </p>
                 <div className="toolbar">
-                  <select
+                  <select className="format-select"
                     value={format}
                     onChange={(e) => setFormat(e.target.value)}
                   >
@@ -266,7 +266,7 @@ export function Tracker({
                   Ranked by wins, win rate, then game and point difference.
                 </p>
                 <div className="toolbar">
-                  <select
+                  <select className="format-select"
                     value={format}
                     onChange={(e) => setFormat(e.target.value)}
                   >
@@ -276,7 +276,7 @@ export function Tracker({
                     <option>2v1</option>
                   </select>
                 </div>
-                <div className="card">
+                <div className="card standings-card">
                   <Ranks />
                 </div>
               </>
@@ -293,8 +293,8 @@ export function Tracker({
                 </p>
                 {profile ? (
                   <>
-                    <button className="link" onClick={() => setProfile(null)}>
-                      ← All players
+                    <button className="back-button" onClick={() => setProfile(null)}>
+                      <span aria-hidden="true">←</span> All players
                     </button>
                     <div className="grid">
                       <div className="card">
